@@ -43,14 +43,8 @@ export class AppModule {}
 Alternatively, create database.module.ts:
 ``` typescript
 import { Module } from '@nestjs/common';
-import { config } from 'dotenv';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {ConfigModule, ConfigService} from "@nestjs/config";
-
-// helps load env variables
-config({
-    path: ['.env', 'env.prod', 'env.local']
-})
 
 @Module({
     imports: [
