@@ -1,22 +1,6 @@
 # Building an Event Management API with NestJS: A Complete Tutorial
-
-Learn NestJS by building a comprehensive Event Management System with authentication, role-based access, and real-world features.
-
-## 🎯 What You'll Learn
-
-- NestJS fundamentals and architecture
-- Building RESTful APIs with proper structure
-- Database integration with TypeORM
-- Authentication & Authorization (JWT + Guards)
-- Role-based access control
-- Data validation with DTOs
-- API documentation with Swagger
-- Error handling and logging
-- Testing strategies
-
 ## 🏗️ Project Overview
-
-We'll build an Event Management System with the following features:
+Features:
 - User authentication and role management
 - Event creation and management
 - Event registration system
@@ -35,7 +19,7 @@ We'll build an Event Management System with the following features:
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js (v16 or higher)
+- Node.js 
 - PostgreSQL database
 - Basic TypeScript knowledge
 
@@ -54,54 +38,11 @@ cd event-management-api
 
 Install required dependencies:
 ```bash
-npm install @nestjs/typeorm typeorm pg @nestjs/passport passport @nestjs/jwt passport-jwt @nestjs/swagger swagger-ui-express class-validator class-transformer bcryptjs
-npm install -D @types/passport-jwt @types/bcryptjs
+pnpm install @nestjs/typeorm typeorm pg @nestjs/passport passport @nestjs/jwt passport-jwt @nestjs/swagger swagger-ui-express class-validator class-transformer bcryptjs
+pnpm install -D @types/passport-jwt @types/bcryptjs @nestjs/config dotenv
 ```
-
----
-
-## 🗃️ Database Configuration
-
-### Setting up TypeORM
-
-Create a database configuration file:
-
-**src/config/database.config.ts**
-```typescript
-import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-
-export const databaseConfig: TypeOrmModuleOptions = {
-  type: 'postgres',
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT) || 5432,
-  username: process.env.DB_USERNAME || 'postgres',
-  password: process.env.DB_PASSWORD || 'password',
-  database: process.env.DB_NAME || 'event_management',
-  entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-  synchronize: process.env.NODE_ENV !== 'production',
-  logging: process.env.NODE_ENV === 'development',
-};
-```
-
-Update **app.module.ts**:
-```typescript
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule } from '@nestjs/config';
-import { databaseConfig } from './config/database.config';
-
-@Module({
-  imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
-    TypeOrmModule.forRoot(databaseConfig),
-  ],
-})
-export class AppModule {}
-```
-
----
+-- Set-up the database
+Database-Integration.md
 
 ## 👤 Building the User Module
 
