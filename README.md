@@ -1,4 +1,27 @@
 # Building an Event Management API with NestJS: A Complete Tutorial
+This tutorial will guide you through building a robust Event Management API using NestJS, TypeORM, and PostgreSQL. We will cover essential concepts and best practices to create a scalable and maintainable application.
+
+## 📚 Table of Contents
+-   [Introduction](./docs/01-Nest-architecture.md)  
+-   [Controllers](./docs/02-Controllers.md)  
+-   [Providers](./docs/03-Providers.md) 
+-   [Modules](./docs/04-Modules.md)
+-   [Middleware](./docs/05-Middleware.md)
+-   [Exception Filters](./docs/06-Exception-filters.md)
+-   [Pipes](./docs/07-Pipes.md)
+-   [Guards](./docs/08-Guards.md)
+-   [Database Integration](./docs/09-Database-integration.md)
+-   [Relations](./docs/09-Relationships.md)
+-   [TypeORM](./docs/09-TypeORM.md)
+-   [Logging](./docs/10-logging-error-handling.md)
+-   [Repository Pattern](./docs/11-Repository-pattern.md)
+-   [Seeding](./docs/12-Seeding.md)
+-   [Caching](./docs/13-Caching.md)
+-   [Authentication](./docs/14-authentication.md)
+-   [Authorization](./docs/15-authorization.md)
+-   [Swagger](./docs/16-swagger.md)
+
+
 ## 🏗️ Project Overview
 Features:
 - User authentication and role management
