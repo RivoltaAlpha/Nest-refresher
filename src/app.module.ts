@@ -7,6 +7,8 @@ import { EventsModule } from './events/events.module';
 import { RegistrationsModule } from './registrations/registrations.module';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
+import { FeedbackModule } from './feedback/feedback.module';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
   imports: [UsersModule, AuthModule, EventsModule, RegistrationsModule,
@@ -15,6 +17,8 @@ import { DatabaseModule } from './database/database.module';
       envFilePath: '.env',
     }),
     DatabaseModule,
+    FeedbackModule,
+    PaymentsModule,
 
   ],
   controllers: [AppController],
