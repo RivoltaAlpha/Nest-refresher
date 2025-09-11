@@ -69,20 +69,18 @@ findAll() {
 - **Purpose**: Marks specific routes as publicly accessible
 - **How it works**: Sets metadata that tells guards to skip authentication checks
 
-#### `@GetCurrentUserId` Decorator
+#### `@Roles()` Decorator
 
 ```typescript
-@Post('profile')
-createProfile(
-  @Body() data: CreateProfileDto,
-  @GetCurrentUserId() userId: string
-) {
-  // userId is automatically extracted from the JWT token
-}
+  @Get()
+  @Roles(UserRole.Admin) // Only users with the 'Admin' role can access this endpoint
+  findAll() {
+    return this.usersService.findAll();
+  }
 ```
 
-- **Purpose**: Extracts the user ID from the authenticated request
-- **How it works**: Pulls the user ID from the JWT payload attached to the request
+- **Purpose**: Restricts access to routes based on user roles
+- **How it works**: Sets metadata that guards use to check if the user has the required role
 
 ### Strategies
 
