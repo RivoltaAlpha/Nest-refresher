@@ -24,8 +24,8 @@ export class Payment {
   @Column({ type: 'varchar' })
   payment_date: string;
 
-  @Column({ type: 'varchar' })
-  amount: string;
+  @Column({ type: 'int' })
+  amount: number;
 
   @Column({ type: 'varchar' })
   payment_method: string;
