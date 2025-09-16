@@ -1,26 +1,34 @@
 import { Injectable } from '@nestjs/common';
 import { CreateRegistrationDto } from './dto/create-registration.dto';
 import { UpdateRegistrationDto } from './dto/update-registration.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Registration } from './entities/registration.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class RegistrationsService {
+  constructor (
+    @InjectRepository(Registration)
+    private registrationsRepository: Repository<Registration>,
+  ){}
   create(createRegistrationDto: CreateRegistrationDto) {
-    return 'This action adds a new registration';
+    const registration = this.registrationsRepository.create(createRegistrationDto);
+    return this.registrationsRepository.save(registration);
   }
 
   findAll() {
-    return `This action returns all registrations`;
+    return this.registrationsRepository.find();
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} registration`;
+    return this.registrationsRepository.findOneBy({ registration_id: id });
   }
 
   update(id: number, updateRegistrationDto: UpdateRegistrationDto) {
-    return `This action updates a #${id} registration`;
+    return this.registrationsRepository.update(id, updateRegistrationDto);
   }
 
   remove(id: number) {
-    return `This action removes a #${id} registration`;
+    return this.registrationsRepository.delete(id);
   }
 }
