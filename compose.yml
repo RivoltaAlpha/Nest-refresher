@@ -1,19 +1,69 @@
-version: '3.1'
-
 services:
-
-  db:
-    image: postgres
-    restart: always
+  # PostgreSQL Database Service
+  event-management-db:
+    image: postgres:15-alpine
+    container_name: event-management-db
+    restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: test
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: event-management-db
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-Coding123} 
     ports:
       - "5432:5432"
+    networks:
+      - app-network
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
-  adminer:
-    image: adminer
-    restart: always
+  # NestJS Application Service
+  nestjs-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nestjs-app
     ports:
-      - 8080:8080
+      - "8000:8000"
+    environment:
+      - NODE_ENV=development
+      - PORT=8000
+      - DB_HOST=event-management-db
+      - DB_PORT=5432
+      - DB_NAME=event-management-db
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=${POSTGRES_PASSWORD:-password}
+      - DB_SYNC=true
+      - DB_LOGGING=true
+      - JWT_ACCESS_TOKEN_SECRET=${JWT_ACCESS_TOKEN_SECRET:-Coding123}
+      - JWT_ACCESS_TOKEN_EXPIRES_IN=${JWT_ACCESS_TOKEN_EXPIRES_IN:-15m}
+      - JWT_REFRESH_TOKEN_SECRET=${JWT_REFRESH_TOKEN_SECRET:-Coding123}
+      - JWT_REFRESH_TOKEN_EXPIRES_IN=${JWT_REFRESH_TOKEN_EXPIRES_IN:-7d}
+      - THROTTLE_TTL=${THROTTLE_TTL:-6000}
+      - THROTTLE_LIMIT=${THROTTLE_LIMIT:-100}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-Coding123}
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-Coding123}@redis:6379
+
+    depends_on:
+      event-management-db:
+        condition: service_healthy
+    networks:
+      - app-network
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+volumes:
+  pgdata:
+    name: event-api-pgdata
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge
