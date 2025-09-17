@@ -11,6 +11,9 @@ import { FeedbackModule } from './feedback/feedback.module';
 import { PaymentsModule } from './payments/payments.module';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './auth/guards/roles.guards';
+import { AtGuard } from './auth/guards/access-token.guards';
+import { User } from './users/entities/user.entity';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [UsersModule, AuthModule, EventsModule, RegistrationsModule,
@@ -20,17 +23,21 @@ import { RolesGuard } from './auth/guards/roles.guards';
     }),
     AuthModule,
     DatabaseModule,
-    UsersModule,
     EventsModule,
     FeedbackModule,
     PaymentsModule,
     RegistrationsModule,
+    TypeOrmModule.forFeature([User])
   ],
   controllers: [AppController],
   providers: [AppService,
     {
       provide: APP_GUARD,
       useClass: RolesGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: AtGuard,
     },
   ],
 })
