@@ -1,0 +1,395 @@
+# Event Management System - API Testing
+# Base URL: http://localhost:3000
+
+@baseUrl = http://localhost:3000
+@contentType = Content-Type: application/json
+
+# Variables for testing (update these with actual values)
+@testUserId = 1
+@testEventId = 1
+@testRegistrationId = 1
+@testPaymentId = 1
+@testFeedbackId = 1
+@accessToken = your_access_token_here
+@refreshToken = your_refresh_token_here
+
+###############################################################################
+# AUTHENTICATION ENDPOINTS
+###############################################################################
+
+### 1. User Signup (Public)
+POST {{baseUrl}}/auth/signup
+{{contentType}}
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### 2. User Signin (Public)
+POST {{baseUrl}}/auth/signin
+{{contentType}}
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### 3. User Signout (Requires Auth)
+POST {{baseUrl}}/auth/signout/{{testUserId}}
+Authorization: Bearer {{accessToken}}
+
+### 4. Refresh Token (Public with Refresh Token)
+POST {{baseUrl}}/auth/refresh/{{testUserId}}
+Authorization: Bearer {{refreshToken}}
+
+###############################################################################
+# USERS ENDPOINTS
+###############################################################################
+
+### 5. Create User (Public)
+POST {{baseUrl}}/users
+{{contentType}}
+
+{
+  "name": "John Doe",
+  "email": "john.doe@example.com",
+  "password": "password123",
+  "phone": "+1234567890",
+  "role": "User"
+}
+
+### 6. Get All Users (Admin only)
+GET {{baseUrl}}/users
+Authorization: Bearer {{accessToken}}
+
+### 7. Get User by ID (Admin, User, Organizer)
+GET {{baseUrl}}/users/{{testUserId}}
+Authorization: Bearer {{accessToken}}
+
+### 8. Get User by Email (Admin, Organizer)
+GET {{baseUrl}}/users/email/john.doe@example.com
+Authorization: Bearer {{accessToken}}
+
+### 9. Update User
+PATCH {{baseUrl}}/users/{{testUserId}}
+Authorization: Bearer {{accessToken}}
+{{contentType}}
+
+{
+  "name": "John Doe Updated",
+  "phone": "+0987654321"
+}
+
+### 10. Delete User
+DELETE {{baseUrl}}/users/{{testUserId}}
+Authorization: Bearer {{accessToken}}
+
+###############################################################################
+# EVENTS ENDPOINTS
+###############################################################################
+
+### 11. Create Event
+POST {{baseUrl}}/events
+Authorization: Bearer {{accessToken}}
+{{contentType}}
+
+{
+  "event_name": "Tech Conference 2024",
+  "event_date": "2024-12-15",
+  "event_location": "Convention Center",
+  "event_description": "A comprehensive technology conference covering the latest trends in software development.",
+  "max_participants": 500,
+  "organizer_id": 1
+}
+
+### 12. Get All Events
+GET {{baseUrl}}/events
+Authorization: Bearer {{accessToken}}
+
+### 13. Get Event by ID
+GET {{baseUrl}}/events/{{testEventId}}
+Authorization: Bearer {{accessToken}}
+
+### 14. Update Event
+PATCH {{baseUrl}}/events/{{testEventId}}
+Authorization: Bearer {{accessToken}}
+{{contentType}}
+
+{
+  "event_name": "Updated Tech Conference 2024",
+  "max_participants": 600
+}
+
+### 15. Delete Event
+DELETE {{baseUrl}}/events/{{testEventId}}
+Authorization: Bearer {{accessToken}}
+
+###############################################################################
+# REGISTRATIONS ENDPOINTS
+###############################################################################
+
+### 16. Create Registration
+POST {{baseUrl}}/registrations
+Authorization: Bearer {{accessToken}}
+{{contentType}}
+
+{
+  "event_id": 1,
+  "user_id": 1,
+  "registration_date": "2024-01-15T10:00:00.000Z",
+  "payment_status": "pending",
+  "payment_amount": 99.99,
+  "created_at": "2024-01-15T10:00:00.000Z",
+  "updated_at": "2024-01-15T10:00:00.000Z"
+}
+
+### 17. Get All Registrations
+GET {{baseUrl}}/registrations
+Authorization: Bearer {{accessToken}}
+
+### 18. Get Registration by ID
+GET {{baseUrl}}/registrations/{{testRegistrationId}}
+Authorization: Bearer {{accessToken}}
+
+### 19. Update Registration
+PATCH {{baseUrl}}/registrations/{{testRegistrationId}}
+Authorization: Bearer {{accessToken}}
+{{contentType}}
+
+{
+  "payment_status": "completed",
+  "updated_at": "2024-01-16T10:00:00.000Z"
+}
+
+### 20. Delete Registration
+DELETE {{baseUrl}}/registrations/{{testRegistrationId}}
+Authorization: Bearer {{accessToken}}
+
+###############################################################################
+# PAYMENTS ENDPOINTS
+###############################################################################
+
+### 21. Create Payment
+POST {{baseUrl}}/payments
+Authorization: Bearer {{accessToken}}
+{{contentType}}
+
+{
+  "registration_id": 1,
+  "payment_date": "2024-01-15",
+  "amount": 99.99,
+  "payment_method": "credit_card",
+  "payment_status": "completed",
+  "transaction_id": "TXN123456789",
+  "created_at": "2024-01-15T10:00:00.000Z",
+  "updated_at": "2024-01-15T10:00:00.000Z"
+}
+
+### 22. Get All Payments
+GET {{baseUrl}}/payments
+Authorization: Bearer {{accessToken}}
+
+### 23. Get Payment by ID
+GET {{baseUrl}}/payments/{{testPaymentId}}
+Authorization: Bearer {{accessToken}}
+
+### 24. Update Payment
+PATCH {{baseUrl}}/payments/{{testPaymentId}}
+Authorization: Bearer {{accessToken}}
+{{contentType}}
+
+{
+  "payment_status": "refunded",
+  "updated_at": "2024-01-17T10:00:00.000Z"
+}
+
+### 25. Delete Payment
+DELETE {{baseUrl}}/payments/{{testPaymentId}}
+Authorization: Bearer {{accessToken}}
+
+###############################################################################
+# FEEDBACK ENDPOINTS
+###############################################################################
+
+### 26. Create Feedback
+POST {{baseUrl}}/feedback
+Authorization: Bearer {{accessToken}}
+{{contentType}}
+
+{
+  "event_id": 1,
+  "user_id": 1,
+  "rating": 5,
+  "feedback_text": "Excellent event! Very well organized and informative presentations.",
+  "created_at": "2024-01-16T15:00:00.000Z",
+  "updated_at": "2024-01-16T15:00:00.000Z"
+}
+
+### 27. Get All Feedback
+GET {{baseUrl}}/feedback
+Authorization: Bearer {{accessToken}}
+
+### 28. Get Feedback by ID
+GET {{baseUrl}}/feedback/{{testFeedbackId}}
+Authorization: Bearer {{accessToken}}
+
+### 29. Update Feedback
+PATCH {{baseUrl}}/feedback/{{testFeedbackId}}
+Authorization: Bearer {{accessToken}}
+{{contentType}}
+
+{
+  "rating": 4,
+  "feedback_text": "Great event! Minor improvements could be made to the venue.",
+  "updated_at": "2024-01-17T15:00:00.000Z"
+}
+
+### 30. Delete Feedback
+DELETE {{baseUrl}}/feedback/{{testFeedbackId}}
+Authorization: Bearer {{accessToken}}
+
+###############################################################################
+# APP CONTROLLER (ROOT)
+###############################################################################
+
+### 31. Get Hello (Root endpoint)
+GET {{baseUrl}}/
+
+###############################################################################
+# TESTING SCENARIOS
+###############################################################################
+
+### Complete User Registration Flow
+# 1. Create a new user
+POST {{baseUrl}}/users
+{{contentType}}
+
+{
+  "name": "Jane Smith",
+  "email": "jane.smith@example.com",
+  "password": "securepass123",
+  "phone": "+1555123456",
+  "role": "User"
+}
+
+### 
+# 2. Sign in the user
+POST {{baseUrl}}/auth/signin
+{{contentType}}
+
+{
+  "email": "jane.smith@example.com",
+  "password": "securepass123"
+}
+
+###
+# 3. Create an event (if user has organizer role)
+POST {{baseUrl}}/events
+Authorization: Bearer {{accessToken}}
+{{contentType}}
+
+{
+  "event_name": "Workshop on NestJS",
+  "event_date": "2024-03-20",
+  "event_location": "Online",
+  "event_description": "Learn NestJS fundamentals and advanced concepts",
+  "max_participants": 50,
+  "organizer_id": 1
+}
+
+###
+# 4. Register for the event
+POST {{baseUrl}}/registrations
+Authorization: Bearer {{accessToken}}
+{{contentType}}
+
+{
+  "event_id": 1,
+  "user_id": 1,
+  "registration_date": "2024-01-15T10:00:00.000Z",
+  "payment_status": "pending",
+  "payment_amount": 49.99,
+  "created_at": "2024-01-15T10:00:00.000Z",
+  "updated_at": "2024-01-15T10:00:00.000Z"
+}
+
+###
+# 5. Process payment
+POST {{baseUrl}}/payments
+Authorization: Bearer {{accessToken}}
+{{contentType}}
+
+{
+  "registration_id": 1,
+  "payment_date": "2024-01-15",
+  "amount": 49.99,
+  "payment_method": "paypal",
+  "payment_status": "completed",
+  "transaction_id": "PP123456789",
+  "created_at": "2024-01-15T11:00:00.000Z",
+  "updated_at": "2024-01-15T11:00:00.000Z"
+}
+
+###
+# 6. Submit feedback after the event
+POST {{baseUrl}}/feedback
+Authorization: Bearer {{accessToken}}
+{{contentType}}
+
+{
+  "event_id": 1,
+  "user_id": 1,
+  "rating": 5,
+  "feedback_text": "Outstanding workshop! The instructor was very knowledgeable and the content was practical.",
+  "created_at": "2024-03-21T18:00:00.000Z",
+  "updated_at": "2024-03-21T18:00:00.000Z"
+}
+
+###############################################################################
+# ERROR TESTING
+###############################################################################
+
+### Test Invalid Authentication
+GET {{baseUrl}}/users
+Authorization: Bearer invalid_token
+
+### Test Missing Required Fields
+POST {{baseUrl}}/events
+Authorization: Bearer {{accessToken}}
+{{contentType}}
+
+{
+  "event_name": ""
+}
+
+### Test Non-existent Resource
+GET {{baseUrl}}/events/999999
+Authorization: Bearer {{accessToken}}
+
+### Test Invalid ID Format
+GET {{baseUrl}}/users/invalid_id
+Authorization: Bearer {{accessToken}}
+
+###############################################################################
+# NOTES
+###############################################################################
+#
+# Before running these tests:
+# 1. Make sure your NestJS application is running (usually on port 3000)
+# 2. Update the @accessToken and @refreshToken variables with actual tokens
+# 3. Update the test IDs (@testUserId, @testEventId, etc.) with real IDs from your database
+# 4. Adjust the JSON payloads according to your actual entity requirements
+#
+# Authentication Flow:
+# 1. Create a user using POST /users (public endpoint)
+# 2. Sign in using POST /auth/signin to get access and refresh tokens
+# 3. Use the access token for subsequent authenticated requests
+# 4. Use the refresh token to get new access tokens when they expire
+#
+# Role-based Testing:
+# - Some endpoints require specific roles (Admin, User, Organizer)
+# - Make sure to test with users having different roles
+# - Some endpoints are public (@Public() decorator) and don't require authentication
+#
+###############################################################################
