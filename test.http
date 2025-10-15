@@ -10,8 +10,8 @@
 @testRegistrationId = 1
 @testPaymentId = 1
 @testFeedbackId = 1
-@accessToken = your_access_token_here
-@refreshToken = your_refresh_token_here
+@accessToken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsImVtYWlsIjoibXdhbmlraXRpZmZAZ21haWwuY29tIiwicm9sZSI6IkFkbWluIiwiaWF0IjoxNzYwMzYyNjg0LCJleHAiOjE3NjAzNjYyODR9.TU7KH0CGj903LXPJXmX0doEKnGZ5ICnngcUlsv4FDjo
+@refreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIsImVtYWlsIjoid2FtbmlraXRpZmZAZ21haWwuY29tIiwicm9sZSI6IkFkbWluIiwiaWF0IjoxNzYwMzU4MTAxLCJleHAiOjE3NjAzNTg3MDV9.ht0-4DTcZPRWjYO2Bi29EXG_7ZJYc_FkNNrYUIZ8Qc8
 
 ###############################################################################
 # AUTHENTICATION ENDPOINTS
@@ -22,8 +22,11 @@ POST {{baseUrl}}/auth/signup
 {{contentType}}
 
 {
-  "email": "test@example.com",
-  "password": "password123"
+  "name": "Mwaniki Tiffany",
+  "email": "mwanikitiff@gmail.com",
+  "password": "password123",
+  "phone": "+1234567890",
+  "role": "Admin"
 }
 
 ### 2. User Signin (Public)
@@ -31,7 +34,7 @@ POST {{baseUrl}}/auth/signin
 {{contentType}}
 
 {
-  "email": "test@example.com",
+  "email": "mwanikitiff@gmail.com",
   "password": "password123"
 }
 

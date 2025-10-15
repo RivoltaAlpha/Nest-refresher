@@ -106,10 +106,10 @@ export class User {
   })
   role: UserRole;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'datetime2' })
   created_at: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'datetime2' })
   updated_at: Date;
 }
 ```
@@ -407,10 +407,10 @@ export class Event {
   @Column()
   created_by: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'datetime2' })
   created_at: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'datetime2' })
   updated_at: Date;
 }
 ```
@@ -499,7 +499,7 @@ export class Registration {
   @Column()
   user_id: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'datetime2' })
   registration_date: Date;
 
   @Column({

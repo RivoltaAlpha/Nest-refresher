@@ -264,10 +264,10 @@ export class Post {
     @PrimaryGeneratedColumn()
     id: number
 
-    @CreateDateColumn() // Automatically set on creation
+    @CreateDateColumn({ type: 'datetime2' }) // Automatically set on creation
     createdAt: Date
 
-    @UpdateDateColumn() // Automatically updated on save
+    @UpdateDateColumn({ type: 'datetime2' }) // Automatically updated on save
     updatedAt: Date
 
     @DeleteDateColumn() // Set when soft-deleted
