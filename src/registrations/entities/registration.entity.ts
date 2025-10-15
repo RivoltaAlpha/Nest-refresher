@@ -24,21 +24,22 @@ export class Registration {
   @Column()
   user_id: number; // Reference to users table
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'datetime2' })
   registration_date: Date;
 
   @Column({
-    type: 'enum',
-    enum: paymentStatus,
+    type: 'varchar',
+    length: 10,
+    default: paymentStatus.Pending,
   })
   payment_status: paymentStatus;
 
   @Column('decimal', { precision: 10, scale: 2 })
   payment_amount: number;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'datetime2' })
   created_at: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'datetime2' })
   updated_at: Date;
 }

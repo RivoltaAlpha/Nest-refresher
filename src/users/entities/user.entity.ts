@@ -1,4 +1,4 @@
-import {
+ import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
@@ -36,15 +36,15 @@ export class User {
   hashedRefreshToken?: string | null;
 
   @Column({
-    type: 'enum',
-    enum: UserRole,
+    type: 'varchar',
+    length: 10,
     default: UserRole.User,
   })
   role: UserRole;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'datetime2' })
   created_at: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'datetime2' })
   updated_at: Date;
 }

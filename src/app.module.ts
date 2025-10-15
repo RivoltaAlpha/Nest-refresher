@@ -14,12 +14,15 @@ import { RolesGuard } from './auth/guards/roles.guards';
 import { AtGuard } from './auth/guards/access-token.guards';
 import { User } from './users/entities/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { databaseConfig } from './database/database.config';
 
 @Module({
   imports: [UsersModule, AuthModule, EventsModule, RegistrationsModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+      load: [databaseConfig],
+
     }),
     AuthModule,
     DatabaseModule,

@@ -31,16 +31,16 @@ export class Payment {
   payment_method: string;
 
   @Column({
-    type: 'enum',
-    enum: paymentStatus,
+    type: 'varchar',
+    length: 10,
     default: paymentStatus.Pending,
   })
   payment_status: paymentStatus;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'datetime2' })
   created_at: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'datetime2' })
   updated_at: Date;
 
   // relationship with event_registrationstable
