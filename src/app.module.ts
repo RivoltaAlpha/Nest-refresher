@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { EventsModule } from './events/events.module';
@@ -15,6 +14,7 @@ import { AtGuard } from './auth/guards/access-token.guards';
 import { User } from './users/entities/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { databaseConfig } from './database/database.config';
+import { AppService } from './app.service';
 
 @Module({
   imports: [UsersModule, AuthModule, EventsModule, RegistrationsModule,
@@ -33,15 +33,17 @@ import { databaseConfig } from './database/database.config';
     TypeOrmModule.forFeature([User])
   ],
   controllers: [AppController],
-  providers: [AppService,
+  providers: [
+    AppService,
+      {
+      provide: APP_GUARD,
+      useClass: AtGuard,
+    },
     {
       provide: APP_GUARD,
       useClass: RolesGuard,
     },
-    {
-      provide: APP_GUARD,
-      useClass: AtGuard,
-    },
   ],
 })
+
 export class AppModule {}

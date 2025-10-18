@@ -11,11 +11,11 @@ type JWTPayload = {
 
 @Injectable()
 export class AccessStrategy extends PassportStrategy(Strategy, 'access') {
-    constructor(private configService: ConfigService) {
+    constructor(private readonly configService: ConfigService) {
         super({
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
             secretOrKey: configService.getOrThrow<string>('JWT_ACCESS_TOKEN_SECRET'),
-            passReqToCallback: false,// to pass the request object in validate method
+            ignoreExpiration: false,
         });
     }
 

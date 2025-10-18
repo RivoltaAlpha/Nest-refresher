@@ -10,7 +10,7 @@
 @testRegistrationId = 1
 @testPaymentId = 1
 @testFeedbackId = 1
-@accessToken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsImVtYWlsIjoibXdhbmlraXRpZmZAZ21haWwuY29tIiwicm9sZSI6IkFkbWluIiwiaWF0IjoxNzYwMzYyNjg0LCJleHAiOjE3NjAzNjYyODR9.TU7KH0CGj903LXPJXmX0doEKnGZ5ICnngcUlsv4FDjo
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjQsImVtYWlsIjoiYWRtaW5AZ21haWwuY29tIiwicm9sZSI6IkFkbWluIiwiaWF0IjoxNzYwNzgyNzI1LCJleHAiOjE3NjA3ODYzMjV9.zVkKPNZdlKDonTYrs3PL-FVIAsR0shxYnpczeXHiN-0
 @refreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIsImVtYWlsIjoid2FtbmlraXRpZmZAZ21haWwuY29tIiwicm9sZSI6IkFkbWluIiwiaWF0IjoxNzYwMzU4MTAxLCJleHAiOjE3NjAzNTg3MDV9.ht0-4DTcZPRWjYO2Bi29EXG_7ZJYc_FkNNrYUIZ8Qc8
 
 ###############################################################################
@@ -23,8 +23,8 @@ POST {{baseUrl}}/auth/signup
 
 {
   "name": "Mwaniki Tiffany",
-  "email": "mwanikitiff@gmail.com",
-  "password": "password123",
+  "email": "admin@gmail.com",
+  "password": "AdminPass@123",
   "phone": "+1234567890",
   "role": "Admin"
 }
@@ -34,8 +34,8 @@ POST {{baseUrl}}/auth/signin
 {{contentType}}
 
 {
-  "email": "mwanikitiff@gmail.com",
-  "password": "password123"
+  "email": "admin@gmail.com",
+  "password": "AdminPass@123"
 }
 
 ### 3. User Signout (Requires Auth)
@@ -64,14 +64,14 @@ POST {{baseUrl}}/users
 
 ### 6. Get All Users (Admin only)
 GET {{baseUrl}}/users
-Authorization: Bearer {{accessToken}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjQsImVtYWlsIjoiYWRtaW5AZ21haWwuY29tIiwicm9sZSI6IkFkbWluIiwiaWF0IjoxNzYwNzgyNzI1LCJleHAiOjE3NjA3ODYzMjV9.zVkKPNZdlKDonTYrs3PL-FVIAsR0shxYnpczeXHiN-0
 
 ### 7. Get User by ID (Admin, User, Organizer)
 GET {{baseUrl}}/users/{{testUserId}}
 Authorization: Bearer {{accessToken}}
 
 ### 8. Get User by Email (Admin, Organizer)
-GET {{baseUrl}}/users/email/john.doe@example.com
+GET {{baseUrl}}/users/email/wamnikitiff@gmail.com
 Authorization: Bearer {{accessToken}}
 
 ### 9. Update User
@@ -102,8 +102,7 @@ Authorization: Bearer {{accessToken}}
   "event_date": "2024-12-15",
   "event_location": "Convention Center",
   "event_description": "A comprehensive technology conference covering the latest trends in software development.",
-  "max_participants": 500,
-  "organizer_id": 1
+  "created_by": "1"
 }
 
 ### 12. Get All Events
