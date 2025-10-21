@@ -5,7 +5,13 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  ManyToOne,
+  JoinColumn,
+  OneToOne,
 } from 'typeorm';
+import { User } from 'src/users/entities/user.entity';
+import { Event } from 'src/events/entities/event.entity';
+import { Payment } from 'src/payments/entities/payment.entity';
 
 export enum paymentStatus {
     Pending = 'Pending',
@@ -17,12 +23,6 @@ export enum paymentStatus {
 export class Registration {
   @PrimaryGeneratedColumn()
   registration_id: number;
-
-  @Column()
-  event_id: number; // Reference to events table
-
-  @Column()
-  user_id: number; // Reference to users table
 
   @CreateDateColumn({ type: 'datetime2' })
   registration_date: Date;
@@ -42,4 +42,18 @@ export class Registration {
 
   @UpdateDateColumn({ type: 'datetime2' })
   updated_at: Date;
+
+  // Registration belongs to one user
+  @ManyToOne(() => User, (user) => user.registrations)
+  @JoinColumn({ name: 'user_id' })
+  user: User;
+
+  // Registration belongs to one event
+  @ManyToOne(() => Event, (event) => event.registrations)
+  @JoinColumn({ name: 'event_id' })
+  event: Event;
+
+  // Registration has one payment
+  @OneToOne(() => Payment, (payment) => payment.registration)
+  payment: Payment;
 }

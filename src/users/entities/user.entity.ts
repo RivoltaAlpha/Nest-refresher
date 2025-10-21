@@ -6,6 +6,9 @@
   UpdateDateColumn,
   OneToMany,
 } from 'typeorm';
+import { Event } from 'src/events/entities/event.entity';
+import { Registration } from 'src/registrations/entities/registration.entity';
+import { Feedback } from 'src/feedback/entities/feedback.entity';
 
 // ENUM('Admin', 'Manager', 'Warehouse', 'Sales', 'Supplier'
 export enum UserRole {
@@ -48,11 +51,22 @@ export class User {
   @UpdateDateColumn({ type: 'datetime2' })
   updated_at: Date;
 
-  // events relationship 
-  @OneToMany(() => Event, (event) => event.created_by, 
-  { cascade: true, 
+  // User creates many events
+  @OneToMany(() => Event, (event) => event.created_by, {
+    cascade: true,
     onDelete: 'CASCADE'
-  }
-)
+  })
   events: Event[];
+
+  // User has many registrations
+  @OneToMany(() => Registration, (registration) => registration.user, {
+    cascade: true
+  })
+  registrations: Registration[];
+
+  // User provides many feedback
+  @OneToMany(() => Feedback, (feedback) => feedback.user, {
+    cascade: true
+  })
+  feedback: Feedback[];
 }

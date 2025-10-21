@@ -5,7 +5,10 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  OneToOne,
+  JoinColumn,
 } from 'typeorm';
+import { Registration } from 'src/registrations/entities/registration.entity';
 
 export enum paymentStatus {
   Success = 'Success',
@@ -17,9 +20,6 @@ export enum paymentStatus {
 export class Payment {
   @PrimaryGeneratedColumn()
   payment_id: number;
-
-  @Column({ type: 'varchar' })
-  registration_id: number; // Reference to event_registrationstable
 
   @Column({ type: 'varchar' })
   payment_date: string;
@@ -43,5 +43,8 @@ export class Payment {
   @UpdateDateColumn({ type: 'datetime2' })
   updated_at: Date;
 
-  // relationship with event_registrationstable
+  // Payment belongs to one registration
+  @OneToOne(() => Registration, (registration) => registration.payment)
+  @JoinColumn({ name: 'registration_id' })
+  registration: Registration;
 }

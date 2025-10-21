@@ -1,5 +1,7 @@
 import { User } from 'src/users/entities/user.entity';
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Registration } from 'src/registrations/entities/registration.entity';
+import { Feedback } from 'src/feedback/entities/feedback.entity';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity('events')
 export class Event {
@@ -27,4 +29,12 @@ export class Event {
   @ManyToOne(() => User, (user) => user.events)
   @JoinColumn({ name: 'created_by' })
   created_by: User;
+
+  // Event has many registrations
+  @OneToMany(() => Registration, (registration) => registration.event)
+  registrations: Registration[];
+
+  // Event receives many feedback
+  @OneToMany(() => Feedback, (feedback) => feedback.event)
+  feedback: Feedback[];
 }
