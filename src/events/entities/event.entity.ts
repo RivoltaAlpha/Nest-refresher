@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { User } from 'src/users/entities/user.entity';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity('events')
 export class Event {
@@ -17,12 +18,13 @@ export class Event {
   @Column({ type: 'varchar', length: 250 })
   event_description: string;
 
-  @Column({ type: 'varchar', length: 250 })
-  created_by: number; // Reference to userstable (organizer)
-
-  @Column()
+  @CreateDateColumn({ type: 'datetime2' })
   created_at: Date;
 
-  @Column()
+  @UpdateDateColumn({ type: 'datetime2' })
   updated_at: Date;
+
+  @ManyToOne(() => User, (user) => user.events)
+  @JoinColumn({ name: 'created_by' })
+  created_by: User;
 }

@@ -679,4 +679,4 @@ npm run start:prod
 - [Swagger/OpenAPI Specification](https://swagger.io/specification/)
 - [Node.js Best Practices](https://github.com/goldbergyoni/nodebestpractices)
 
-This tutorial provides a solid foundation for building scalable APIs with NestJS. Each module can be extended with additional features as your application grows!
+This tutorial provides a solid foundation for building scalable APIs with NestJS. Each module can be extended with additional features as your application grows

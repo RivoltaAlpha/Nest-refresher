@@ -155,6 +155,39 @@ Here’s the detailed schema for the  **Event Management System** , with tables 
 
 ---
 
+##### Relationships
+
+```bash
+User (1) --- (m) Event
+User (1) --- (m) EventRegistration
+Event (1) --- (m) EventRegistration
+EventRegistration (1) --- (1) Payment
+User (1) --- (m) Feedback
+Event (1) --- (m) Feedback
+
+Users
+  ├── Creates many Events
+  ├── Has many EventRegistrations
+  └── Provides many Feedback
+
+Events
+  ├── Belongs to one User (creator)
+  ├── Has many EventRegistrations
+  └── Receives many Feedback
+
+EventRegistrations
+  ├── Belongs to one User
+  ├── Belongs to one Event
+  └── Has one Payment
+
+Payments
+  └── Belongs to one EventRegistration
+
+Feedback
+  ├── Belongs to one User
+  └── Belongs to one Event
+```
+
 ### **Security & Considerations**
 
 1. **Password Security** : Use secure password hashing (e.g., bcrypt) for storing passwords.
@@ -164,5 +197,3 @@ Here’s the detailed schema for the  **Event Management System** , with tables 
 5. **Notifications** : Integrate email or SMS notifications to notify users about registration confirmation, event reminders, and feedback requests.
 
 ---
-
-ed a more detailed explanation of any part of the design!

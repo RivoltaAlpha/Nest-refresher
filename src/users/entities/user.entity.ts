@@ -47,4 +47,12 @@ export class User {
 
   @UpdateDateColumn({ type: 'datetime2' })
   updated_at: Date;
+
+  // events relationship 
+  @OneToMany(() => Event, (event) => event.created_by, 
+  { cascade: true, 
+    onDelete: 'CASCADE'
+  }
+)
+  events: Event[];
 }

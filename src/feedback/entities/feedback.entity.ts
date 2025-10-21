@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm"
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm"
 
 @Entity('feedbacks')
 export class Feedback {
@@ -17,6 +17,6 @@ export class Feedback {
     @Column({type: 'varchar', length:255})
     comments: string;
     
-    @Column()
-    created_at: Date
+  @CreateDateColumn({ type: 'datetime2' })
+  created_at: Date;
 }
