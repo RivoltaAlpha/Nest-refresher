@@ -56,12 +56,16 @@ pnpm run migration:run
 ```
 3. If you want to check the current migration status, you can use:
 
+```bash
 pnpm run migration:show
+```
 
 Make sure:
 
 Your database connection is properly configured
 Your database server is running
 All your entities are properly defined and imported in your application
+
+## End result:
 
 ![alt text](image.png)
