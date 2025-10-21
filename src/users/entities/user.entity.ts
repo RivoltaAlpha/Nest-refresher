@@ -6,9 +6,9 @@
   UpdateDateColumn,
   OneToMany,
 } from 'typeorm';
-import { Event } from 'src/events/entities/event.entity';
-import { Registration } from 'src/registrations/entities/registration.entity';
-import { Feedback } from 'src/feedback/entities/feedback.entity';
+import { Event } from '../../events/entities/event.entity';
+import { Registration } from '../../registrations/entities/registration.entity';
+import { Feedback } from '../../feedback/entities/feedback.entity';
 
 // ENUM('Admin', 'Manager', 'Warehouse', 'Sales', 'Supplier'
 export enum UserRole {

@@ -9,9 +9,9 @@ import {
   JoinColumn,
   OneToOne,
 } from 'typeorm';
-import { User } from 'src/users/entities/user.entity';
-import { Event } from 'src/events/entities/event.entity';
-import { Payment } from 'src/payments/entities/payment.entity';
+import { User } from '../../users/entities/user.entity';
+import { Event } from '../../events/entities/event.entity';
+import { Payment } from '../../payments/entities/payment.entity';
 
 export enum paymentStatus {
     Pending = 'Pending',

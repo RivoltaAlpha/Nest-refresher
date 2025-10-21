@@ -1,6 +1,6 @@
-import { User } from 'src/users/entities/user.entity';
-import { Registration } from 'src/registrations/entities/registration.entity';
-import { Feedback } from 'src/feedback/entities/feedback.entity';
+import { User } from '../../users/entities/user.entity';
+import { Registration } from '../../registrations/entities/registration.entity';
+import { Feedback } from '../../feedback/entities/feedback.entity';
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity('events')

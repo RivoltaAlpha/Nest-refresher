@@ -8,7 +8,7 @@ import {
   OneToOne,
   JoinColumn,
 } from 'typeorm';
-import { Registration } from 'src/registrations/entities/registration.entity';
+import { Registration } from '../../registrations/entities/registration.entity';
 
 export enum paymentStatus {
   Success = 'Success',

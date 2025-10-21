@@ -63,3 +63,5 @@ Make sure:
 Your database connection is properly configured
 Your database server is running
 All your entities are properly defined and imported in your application
+
+![alt text](image.png)
