@@ -1,39 +1,29 @@
-import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsDate,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsDateString, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateFeedbackDto {
-  @ApiProperty()
-  @IsOptional()
-  @IsNumber()
-  feedback_id: number;
-
-  @ApiProperty()
+  @ApiProperty({ description: 'Event id' })
   @IsNotEmpty()
   @IsNumber()
-  event_id: number; // Reference to eventstable
+  event_id: number;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'User id' })
   @IsNotEmpty()
   @IsNumber()
-  user_id: number; // Reference to userstable
+  user_id: number;
 
-  @ApiProperty()
+  @ApiProperty({ minimum: 1, maximum: 5 })
   @IsNotEmpty()
   @IsNumber()
   rating: number;
 
   @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
-  comments: string;
-  @ApiProperty()
   @IsOptional()
-  @IsDate()
-  created_at: Date;
+  @IsString()
+  comments?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsDateString()
+  created_at?: string;
 }

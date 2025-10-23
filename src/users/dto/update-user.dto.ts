@@ -13,8 +13,5 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
   password?: string;
 
   @ApiPropertyOptional()
-  Role?: string;
-
-  @ApiPropertyOptional()
-  hashedRefreshToken?: string;
+  hashedRefreshToken?: string | null;
 }

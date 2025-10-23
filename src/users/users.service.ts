@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, Response } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, HttpException, HttpStatus } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -13,20 +13,35 @@ export class UsersService {
   ) {}
 
 
-  create(createUserDto: CreateUserDto): Promise<User> {
-    const user = this.usersRepository.create(createUserDto)
-    return this.usersRepository.save(user);
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    try {
+      // prevent duplicate email
+  const existing = await this.usersRepository.findOne({ where: { email: createUserDto.email } });
+      if (existing) {
+        throw new ConflictException('Email already in use');
+      }
+
+      const user = this.usersRepository.create(createUserDto);
+  return await this.usersRepository.save(user);
+    } catch (error) {
+      if (error instanceof ConflictException) throw error;
+      throw new HttpException('Unable to create user', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
-  findAll() {
-    return this.usersRepository.find({
-      select: {
-        user_id: true,
-        name: true,
-        email: true,
-        role: true,
-            }
-    })
+  async findAll() {
+    try {
+      return await this.usersRepository.find({
+        select: {
+          user_id: true,
+          name: true,
+          email: true,
+          role: true,
+        },
+      });
+    } catch (error) {
+      throw new HttpException('Error fetching users', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   async findOne(user_id: number): Promise<User> {
@@ -45,7 +60,11 @@ export class UsersService {
   }
 
     async findByEmail(email: string): Promise<User | null> {
-    return this.usersRepository.findOne({ where: { email } });
+      try {
+        return await this.usersRepository.findOne({ where: { email } });
+      } catch (error) {
+        throw new HttpException('Error fetching user by email', HttpStatus.INTERNAL_SERVER_ERROR);
+      }
   }
 
 async update(user_id: number, updateUserDto: UpdateUserDto): Promise<User> {
@@ -57,27 +76,28 @@ async update(user_id: number, updateUserDto: UpdateUserDto): Promise<User> {
       if (!existingUser) {
         throw new NotFoundException(`User with ID ${user_id} not found`);
       }
-      // Update the user
+      // Update and return the updated user
       await this.usersRepository.update(user_id, updateUserDto);
-      
-      // Return the updated user
       const updatedUser = await this.usersRepository.findOne({ where: { user_id } });
       if (!updatedUser) {
         throw new NotFoundException(`User with ID ${user_id} not found after update`);
       }
       return updatedUser;
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      throw new Error('Error while updating user');
+      if (error instanceof NotFoundException) throw error;
+      throw new HttpException('Error while updating user', HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
 
-async remove(id: string): Promise<void> {
-    const result = await this.usersRepository.delete(id);
-    if (result.affected === 0) {
-      throw new NotFoundException('User not found');
+  async remove(id: string): Promise<void> {
+    try {
+      const result = await this.usersRepository.delete(id);
+      if (result.affected === 0) {
+        throw new NotFoundException('User not found');
+      }
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      throw new HttpException('Error deleting user', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 

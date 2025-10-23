@@ -1,33 +1,30 @@
-import { IsOptional, IsEnum, IsDate, IsNumber } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsOptional, IsEnum, IsDateString, IsNumber, IsNotEmpty } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { paymentStatus } from '../entities/registration.entity';
 
 export class CreateRegistrationDto {
-    @ApiProperty()
+    @ApiPropertyOptional({ description: 'Event id to register for' })
     @IsOptional()
-    event_id: number;
+    @IsNumber()
+    event_id?: number;
 
-    @ApiProperty()
+    @ApiProperty({ description: 'User id registering' })
+    @IsNotEmpty()
     @IsNumber()
     user_id: number;
 
-    @ApiProperty()
-    @IsDate()
-    registration_date: Date;
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsDateString()
+    registration_date?: string;
 
-    @ApiProperty()
+    @ApiPropertyOptional({ enum: paymentStatus })
+    @IsOptional()
     @IsEnum(paymentStatus)
-    payment_status: paymentStatus;
-    
-    @ApiProperty()
+    payment_status?: paymentStatus;
+
+    @ApiPropertyOptional()
+    @IsOptional()
     @IsNumber()
-    payment_amount: number;
-
-    @ApiProperty()
-    @IsDate()
-    created_at: Date;
-
-    @ApiProperty()
-    @IsDate()
-    updated_at: Date;
+    payment_amount?: number;
 }
