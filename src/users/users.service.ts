@@ -4,34 +4,47 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
+import { LoggerService } from '../logger/logger.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    private readonly logger: LoggerService,
   ) {}
 
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDto, ip?: string): Promise<User> {
+    this.logger.log(`Creating new user: ${createUserDto.email}`, 'UsersService', ip);
+    
     try {
       // prevent duplicate email
-  const existing = await this.usersRepository.findOne({ where: { email: createUserDto.email } });
+      const existing = await this.usersRepository.findOne({ where: { email: createUserDto.email } });
       if (existing) {
+        this.logger.warn(`Attempt to create user with existing email: ${createUserDto.email}`, 'UsersService', ip);
         throw new ConflictException('Email already in use');
       }
 
       const user = this.usersRepository.create(createUserDto);
-  return await this.usersRepository.save(user);
+      const savedUser = await this.usersRepository.save(user);
+      
+      this.logger.database('INSERT', 'User', 'UsersService', ip);
+      this.logger.log(`User created successfully: ${savedUser.user_id}`, 'UsersService', ip);
+      
+      return savedUser;
     } catch (error) {
       if (error instanceof ConflictException) throw error;
+      this.logger.error(`Failed to create user: ${error.message}`, 'UsersService', ip, error.stack);
       throw new HttpException('Unable to create user', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  async findAll() {
+  async findAll(ip?: string) {
+    this.logger.database('SELECT', 'User (all)', 'UsersService', ip);
+    
     try {
-      return await this.usersRepository.find({
+      const users = await this.usersRepository.find({
         select: {
           user_id: true,
           name: true,
@@ -39,7 +52,11 @@ export class UsersService {
           role: true,
         },
       });
+      
+      this.logger.log(`Retrieved ${users.length} users`, 'UsersService', ip);
+      return users;
     } catch (error) {
+      this.logger.error(`Failed to fetch users: ${error.message}`, 'UsersService', ip, error.stack);
       throw new HttpException('Error fetching users', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }

@@ -15,21 +15,23 @@ import { User } from './users/entities/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { databaseConfig } from './database/database.config';
 import { AppService } from './app.service';
+import { LoggerModule } from './logger/logger.module';
 
 @Module({
-  imports: [UsersModule, AuthModule, EventsModule, RegistrationsModule,
+  imports: [
+    LoggerModule, // Add LoggerModule first to make it available globally
+    UsersModule, 
+    AuthModule, 
+    EventsModule, 
+    RegistrationsModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
       load: [databaseConfig],
-
     }),
-    AuthModule,
     DatabaseModule,
-    EventsModule,
     FeedbackModule,
     PaymentsModule,
-    RegistrationsModule,
     TypeOrmModule.forFeature([User])
   ],
   controllers: [AppController],
