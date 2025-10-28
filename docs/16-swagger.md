@@ -1,8 +1,4 @@
-# School Management System - JWT Authentication with Role-Based Access Control (RBAC)
-
-Please check the: [API Design](./API%20Design.md)
-
-## OpenAPI Documentation Implementation Guide
+# OpenAPI Documentation Implementation Guide
 
 This guide provides step-by-step instructions for implementing comprehensive OpenAPI (Swagger) documentation in a NestJS application with JWT authentication and role-based access control.
 

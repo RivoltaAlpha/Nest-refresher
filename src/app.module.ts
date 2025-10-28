@@ -16,6 +16,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { databaseConfig } from './database/database.config';
 import { AppService } from './app.service';
 import { LoggerModule } from './logger/logger.module';
+import { SeedModule } from './seed/seed.module';
 
 @Module({
   imports: [
@@ -32,7 +33,8 @@ import { LoggerModule } from './logger/logger.module';
     DatabaseModule,
     FeedbackModule,
     PaymentsModule,
-    TypeOrmModule.forFeature([User])
+    TypeOrmModule.forFeature([User]),
+    SeedModule
   ],
   controllers: [AppController],
   providers: [

@@ -1,7 +1,5 @@
 # Seeding Databases with TypeORM, Nest.js and Faker.js
 
-![How to Seed Database with TypeORM, Nest.js and PostgreSQL](https://thriveread.com/how-to-seed-database-with-typeorm/hero.png)
-
 TypeORM uses database Seeding to populate your tables with initial data during development. Seeding will create and insert records into the database tables directly while using code within your app.
 
 Dive into this step-by-step guide and learn seeding a database using TypeORM in Nest.js. You will learn:
@@ -35,6 +33,8 @@ First, create a seeder module:
 nest g module seed
 nest g service seed
 nest g controller seed
+
+pnpm install @faker-js/faker
 ```
 
 Then structure your seeder module to handle various entity seeding operations:

@@ -1,7 +1,7 @@
 # Event Management System - API Testing
 # Base URL: http://localhost:3000
 
-@baseUrl = http://localhost:3000
+@baseUrl = http://localhost:8000
 @contentType = Content-Type: application/json
 
 # Variables for testing (update these with actual values)
@@ -56,7 +56,7 @@ POST {{baseUrl}}/users
 
 {
   "name": "John Doe",
-  "email": "john.doe@example.com",
+  "email": "john.doe@gmail.com",
   "password": "password123",
   "phone": "+1234567890",
   "role": "User"
@@ -370,8 +370,10 @@ GET {{baseUrl}}/events/999999
 Authorization: Bearer {{accessToken}}
 
 ### Test Invalid ID Format
-GET {{baseUrl}}/users/invalid_id
+GET {{baseUrl}}/seed/all
 Authorization: Bearer {{accessToken}}
+
+
 
 ###############################################################################
 # NOTES
