@@ -63,7 +63,7 @@ export class SeedService {
   }
 
   // seed events
-  async seedEvents(): Promise<void> {
+async seedEvents(): Promise<void> {
     this.logger.log('Seeding events...');
     try {
       const users = await this.userRepository.find();
@@ -77,10 +77,10 @@ export class SeedService {
       for (let i = 0; i < eventCount; i++) {
         const ev = new Event();
         ev.created_by = faker.helpers.arrayElement(users);
-        ev.event_name = faker.lorem.sentence();
-        ev.event_description = faker.lorem.paragraph();
-        ev.event_date = faker.date.future().toISOString();
-        ev.event_location = faker.location.city();
+        ev.event_name = faker.lorem.sentence(3); // Shorter to fit length limit
+        ev.event_description = faker.lorem.paragraph(2); // Shorter paragraph
+        ev.event_date = faker.date.future(); // Use Date object instead of string
+        ev.event_location = faker.location.city().substring(0, 100); // Ensure it fits length
         events.push(ev);
       }
 
@@ -88,6 +88,51 @@ export class SeedService {
       this.logger.log(`${eventCount} events seeded successfully`);
     } catch (error) {
       this.logger.error(`Error seeding events: ${error.message}`, error.stack);
+      throw error;
+    }
+  }
+
+  // payments
+async seedPayments(): Promise<void> {
+    this.logger.log('Seeding payments...');
+    try {
+      // Find registrations that don't have payments yet
+      const registrationsWithoutPayments = await this.registrationRepository
+        .createQueryBuilder('registration')
+        .leftJoinAndSelect('registration.payment', 'payment')
+        .where('payment.payment_id IS NULL')
+        .getMany();
+
+      if (registrationsWithoutPayments.length === 0) {
+        this.logger.log('All registrations already have payments');
+        return;
+      }
+
+      const payments: Payment[] = [];
+      const paymentCount = Math.min(registrationsWithoutPayments.length, 10);
+
+      // Use a subset of registrations without payments
+      const selectedRegistrations = faker.helpers.arrayElements(
+        registrationsWithoutPayments, 
+        paymentCount
+      );
+
+      for (const registration of selectedRegistrations) {
+        const payment = new Payment();
+        payment.registration = registration;
+        payment.amount = faker.number.float({ min: 10, max: 500 });
+        payment.payment_date = faker.date.recent();
+        payment.payment_status = paymentStatus.Pending;
+        payment.payment_method = 'Mpesa';
+        payments.push(payment);
+      }
+
+      if (payments.length > 0) {
+        await this.paymentRepository.save(payments);
+      }
+      this.logger.log(`${payments.length} payments seeded successfully`);
+    } catch (error) {
+      this.logger.error(`Error seeding payments: ${error.message}`, error.stack);
       throw error;
     }
   }
@@ -126,37 +171,6 @@ export class SeedService {
     }
   }
 
-  async seedPayments(): Promise<void> {
-    this.logger.log('Seeding payments...');
-    try {
-      const registrations = await this.registrationRepository.find();
-      if (registrations.length === 0) {
-        throw new Error('No registrations found');
-      }
-
-      const payments: Payment[] = [];
-      const paymentCount = Math.min(registrations.length, 10);
-
-      for (let i = 0; i < paymentCount; i++) {
-        const payment = new Payment();
-        payment.registration = faker.helpers.arrayElement(registrations);
-        payment.amount = faker.number.float({ min: 10, max: 500});
-        payment.payment_date = faker.date.recent().toISOString();
-        payment.payment_status = paymentStatus.Pending;
-        payment.payment_method = 'Mpesa';
-        payments.push(payment);
-      }
-
-      if (payments.length > 0) {
-        await this.paymentRepository.save(payments);
-      }
-      this.logger.log(`${payments.length} payments seeded successfully`);
-    } catch (error) {
-      this.logger.error(`Error seeding payments: ${error.message}`, error.stack);
-      throw error;
-    }
-  }
-
   async seedFeedbacks(): Promise<void> {
     this.logger.log('Seeding feedbacks...');
     try {
@@ -190,8 +204,8 @@ export class SeedService {
   // clearDatabase() method
   async clearDatabase(): Promise<void> {
     try {
-      await this.registrationRepository.delete({});
       await this.paymentRepository.delete({});
+      await this.registrationRepository.delete({});
       await this.feedbackRepository.delete({});
       await this.eventRepository.delete({});
       await this.userRepository.delete({});

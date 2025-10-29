@@ -614,3 +614,10 @@ With properly structured seeders, you can:
 - Clear and repopulate your database as needed
 
 This modular approach to database seeding gives you the flexibility to seed specific entities as needed or the entire database at once, making your development workflow more efficient.
+
+Changed varchar to nvarchar - Better for SQL Server Unicode support
+Added explicit length specifications - Prevents TDS protocol errors
+Changed string dates to Date objects - Proper data type mapping
+Used decimal for monetary values - Better precision for amounts
+Used ntext for long descriptions - Handles larger text content
+Shortened generated text - Ensures it fits within column limits

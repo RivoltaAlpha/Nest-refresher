@@ -371,8 +371,6 @@ Authorization: Bearer {{accessToken}}
 
 ### Test Invalid ID Format
 GET {{baseUrl}}/seed/all
-Authorization: Bearer {{accessToken}}
-
 
 
 ###############################################################################
