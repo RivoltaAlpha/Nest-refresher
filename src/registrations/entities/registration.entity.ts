@@ -28,8 +28,8 @@ export class Registration {
   registration_date: Date;
 
   @Column({
-    type: 'varchar',
-    length: 10,
+    type: 'nvarchar',
+    length: 20,
     default: paymentStatus.Pending,
   })
   payment_status: paymentStatus;

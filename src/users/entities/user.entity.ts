@@ -23,24 +23,24 @@ export class User {
   @PrimaryGeneratedColumn()
   user_id: number;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'nvarchar', length: 255 })
   name: string;
 
-  @Column({ type: 'varchar', unique: true })
+  @Column({ type: 'nvarchar', length: 255, unique: true })
   email: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'nvarchar', length: 255 })
   password: string;
 
-  @Column({ type: 'varchar', nullable: true })
+  @Column({ type: 'nvarchar', length: 255, nullable: true })
   phone: string;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   hashedRefreshToken?: string | null;
 
   @Column({
-    type: 'varchar',
-    length: 10,
+    type: 'nvarchar',
+    length: 20,
     default: UserRole.User,
   })
   role: UserRole;

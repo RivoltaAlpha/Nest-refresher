@@ -4,7 +4,6 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
-  OneToMany,
   OneToOne,
   JoinColumn,
 } from 'typeorm';
@@ -21,18 +20,18 @@ export class Payment {
   @PrimaryGeneratedColumn()
   payment_id: number;
 
-  @Column({ type: 'varchar' })
-  payment_date: string;
+  @Column({ type: 'datetime2' })
+  payment_date: Date;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
   amount: number;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'nvarchar', length: 50 })
   payment_method: string;
 
   @Column({
-    type: 'varchar',
-    length: 10,
+    type: 'nvarchar',
+    length: 20,
     default: paymentStatus.Pending,
   })
   payment_status: paymentStatus;
