@@ -4,6 +4,7 @@ import { HttpAdapterHost } from '@nestjs/core';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { LoggerService } from './logger/logger.service';
 import { ValidationPipe } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -31,6 +32,26 @@ async function bootstrap() {
   
   // Use custom logger
   app.useLogger(loggerService);
+
+  // swagger
+    // Swagger Documentation Setup
+  const config = new DocumentBuilder()
+    .setTitle('Event Management System API')
+    .setDescription('API documentation for Managing Events')
+    .setVersion('1.0')
+    .addBearerAuth()                             // Add Bearer token authentication
+    .build();
+
+  const documentFactory = () => SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('docs', app, documentFactory, {
+    jsonDocumentUrl: '/docs-json',
+    swaggerOptions: {
+    persistAuthorization: true,                 // Remember auth token
+    tagsSorter: 'alpha',                       // Sort tags alphabetically
+    operationsSorter: 'alpha',                 // Sort operations alphabetically
+  },
+  });
+
   
   const port = process.env.PORT ?? 8000;
   await app.listen(port);
