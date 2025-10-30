@@ -331,15 +331,37 @@ async seedPayments(): Promise<void> {
 For a complete seeder implementation, you'll want a method to clear existing data:
 
 ```TypeScript
-// clearDatabase() method
+// Truncate DB
 async clearDatabase(): Promise<void> {
     try {
-      await this.paymentRepository.delete({});
-      await this.registrationRepository.delete({});
-      await this.feedbackRepository.delete({});
-      await this.eventRepository.delete({});
-      await this.userRepository.delete({});
-      this.logger.log('Database cleared successfully');
+      // Use query runner to disable foreign key checks and clear tables
+      const queryRunner =
+        this.userRepository.manager.connection.createQueryRunner();
+
+      await queryRunner.connect();
+
+      try {
+        // Disable foreign key constraints
+        await queryRunner.query(
+          'EXEC sp_MSforeachtable "ALTER TABLE ? NOCHECK CONSTRAINT all"',
+        );
+
+        // Delete data from all tables in reverse dependency order
+        await queryRunner.query('DELETE FROM payments');
+        await queryRunner.query('DELETE FROM registrations');
+        await queryRunner.query('DELETE FROM feedbacks');
+        await queryRunner.query('DELETE FROM events');
+        await queryRunner.query('DELETE FROM users');
+
+        // Re-enable foreign key constraints
+        await queryRunner.query(
+          'EXEC sp_MSforeachtable "ALTER TABLE ? WITH CHECK CHECK CONSTRAINT all"',
+        );
+
+        this.logger.log('Database cleared successfully');
+      } finally {
+        await queryRunner.release();
+      }
     } catch (error) {
       this.logger.error(
         `Error clearing database: ${error.message}`,
@@ -348,7 +370,6 @@ async clearDatabase(): Promise<void> {
       throw error;
     }
   }
-}
 ```
 
 ### Creating a Seeder Controller
@@ -448,6 +469,18 @@ export class SeedController {
    ```
 6. **Relationship Handling**: Pay special attention to how TypeORM handles relationships
 
+### creating a new login
+```sql
+USE [seeding]
+GO
+
+CREATE USER [Tiff] FOR LOGIN [Tiff]
+GO
+
+ALTER ROLE db_owner ADD MEMBER [Tiff]
+GO
+```
+
 ### Using the Seed API
 
 With our seed controller, we can use these endpoints:
@@ -469,22 +502,10 @@ With properly structured seeders, you can:
 
 This modular approach to database seeding gives you the flexibility to seed specific entities as needed or the entire database at once, making your development workflow more efficient.
 
-Changed varchar to nvarchar - Better for SQL Server Unicode support
-Added explicit length specifications - Prevents TDS protocol errors
-Changed string dates to Date objects - Proper data type mapping
-Used decimal for monetary values - Better precision for amounts
-Used ntext for long descriptions - Handles larger text content
-Shortened generated text - Ensures it fits within column limits
-
-
-### creating a new login
-```sql
-USE [seeding]
-GO
-
-CREATE USER [Tiff] FOR LOGIN [Tiff]
-GO
-
-ALTER ROLE db_owner ADD MEMBER [Tiff]
-GO
-```
+**Corrections**
+- Changed varchar to nvarchar - Better for SQL Server Unicode support
+- Added explicit length specifications - Prevents TDS protocol errors
+- Changed string dates to Date objects - Proper data type mapping
+- Used decimal for monetary values - Better precision for amounts
+- Used ntext for long descriptions - Handles larger text content
+- Shortened generated text - Ensures it fits within column limits
