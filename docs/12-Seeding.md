@@ -77,36 +77,30 @@ Here we'll create a seed service with methods for each entity type. Let's start 
 // src/seed/seed.service.ts (basic structure)
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { User, UserRole } from '../users/entities/user.entity';
+import { Event } from '../events/entities/event.entity';
+import { Feedback } from '../feedback/entities/feedback.entity';
+import { Payment, paymentStatus } from '../payments/entities/payment.entity';
+import { Registration, paymentStatus as RegistrationStatus } from '../registrations/entities/registration.entity';
 import { Repository } from 'typeorm';
-import { User } from '../users/entities/user.entity';
-import { Book } from '../books/entities/book.entity';
-import { Author } from '../authors/entities/author.entity';
-import { BookReview } from '../book-reviews/entities/book-review.entity';
-import { Category } from '../categories/entities/category.entity';
-import { Profile } from '../profiles/entities/profile.entity';
-import { fakerEN as faker } from '@faker-js/faker';
+import { faker } from '@faker-js/faker';
 
 @Injectable()
 export class SeedService {
-    private readonly logger = new Logger(SeedService.name);
+  private readonly logger = new Logger(SeedService.name);
 
-    constructor(
-        @InjectRepository(User)
-        private readonly userRepository: Repository<User>,
-        @InjectRepository(Book)
-        private readonly bookRepository: Repository<Book>,
-        @InjectRepository(Author)
-        private readonly authorRepository: Repository<Author>,
-        @InjectRepository(BookReview)
-        private readonly bookReviewRepository: Repository<BookReview>,
-        @InjectRepository(Category)
-        private readonly categoryRepository: Repository<Category>,
-        @InjectRepository(Profile)
-        private readonly profileRepository: Repository<Profile>,
-    ) { }
-
-    // We'll add individual seeding methods here
-}
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+    @InjectRepository(Event)
+    private readonly eventRepository: Repository<Event>,
+    @InjectRepository(Feedback)
+    private readonly feedbackRepository: Repository<Feedback>,
+    @InjectRepository(Payment)
+    private readonly paymentRepository: Repository<Payment>,
+    @InjectRepository(Registration)
+    private readonly registrationRepository: Repository<Registration>,
+  ) {}
 ```
 
 ### The Main Seeding Method
@@ -114,16 +108,16 @@ export class SeedService {
 Let's first look at the main method that orchestrates the entire seeding process:
 
 ```TypeScript
-// seedAll() method
-async seedAll(): Promise<void> {
-    await this.seedUsers();           // Independent entity
-    await this.seedProfiles();        // Depends on users
-    await this.seedAuthors();         // Independent entity
-    await this.seedCategories();      // Independent entity
-    await this.seedBooks();           // Depends on authors and categories
-    await this.seedBookReviews();     // Depends on books and users
-    this.logger.log('All data seeded successfully');
-}
+ // This method calls all other seeding methods in the correct order, ensuring that parent entities are seeded before their dependent entities. The sequence is crucial:
+  async seedDatabase(): Promise<void> {
+    this.logger.log('Seeding database...');
+    await this.seedUsers(); // independent
+    await this.seedEvents(); // dependent on users
+    await this.seedFeedbacks(); // dependent on users and events
+    await this.seedRegistrations(); // dependent on events and users
+    await this.seedPayments(); // dependent on registrations
+    this.logger.log('Database seeding completed.');
+  }
 ```
 
 This method calls all other seeding methods in the correct order, ensuring that parent entities are seeded before their dependent entities. The sequence is crucial:
@@ -138,27 +132,32 @@ This method calls all other seeding methods in the correct order, ensuring that 
 #### 1. Seeding Users
 
 ```TypeScript
-// seedUsers() method
-async seedUsers(): Promise<void> {
+  async seedUsers(): Promise<void> {
+    this.logger.log('Seeding users...');
+    // Implementation for seeding users
     try {
-        const users: User[] = [];
-        const userCount = 10;
+      const users: User[] = [];
+      const userCount = 10;
 
-        for (let i = 0; i < userCount; i++) {
-            const user = new User();
-            user.name = faker.person.fullName();
-            user.email = faker.internet.email();
-            user.password = faker.internet.password();
-            users.push(user);
-        }
+      for (let i = 0; i < userCount; i++) {
+        const user = new User();
+        user.name = faker.person.fullName();
+        user.email = faker.internet.email();
+        user.password = faker.internet.password();
+        user.phone = faker.phone.number();
+        user.role = UserRole.User;
+        user.hashedRefreshToken = '';
+        users.push(user);
+      }
 
-        await this.userRepository.save(users);
-        this.logger.log(`${userCount} users seeded successfully`);
+      await this.userRepository.save(users);
+      this.logger.log(`${userCount} users seeded successfully`);
     } catch (error) {
-        this.logger.error(`Error seeding users: ${error.message}`, error.stack);
-        throw error;
+      this.logger.error(`Error seeding users: ${error.message}`, error.stack);
+      throw error;
     }
-}
+  }
+
 ```
 
 **Explanation**:
@@ -171,249 +170,161 @@ async seedUsers(): Promise<void> {
 - We use TypeORM's repository pattern to save all users in a single database operation
 - Error handling captures any failures with descriptive error messages
 
-#### 2. Seeding Authors
-
-```TypeScript
-// seedAuthors() method
-async seedAuthors(): Promise<void> {
-    try {
-        const authors: Author[] = [];
-        const authorCount = 15;
-
-        for (let i = 0; i < authorCount; i++) {
-            const author = new Author();
-            author.name = faker.person.fullName();
-            author.bio = faker.lorem.paragraph();
-            author.birthDate = faker.date.past({ years: 100 });
-            authors.push(author);
-        }
-
-        await this.authorRepository.save(authors);
-        this.logger.log(`${authorCount} authors seeded successfully`);
-    } catch (error) {
-        this.logger.error(`Error seeding authors: ${error.message}`, error.stack);
-        throw error;
-    }
-}
-```
-
-**Explanation**:
-
-- Similar to users, we create 15 author objects
-- We generate random author data:
-  - Name with `faker.person.fullName()`
-  - Biography with `faker.lorem.paragraph()`
-  - Birth date with `faker.date.past()`, going back up to 100 years
-- The try-catch pattern provides robust error handling for the seeding operation
-
-#### 3. Seeding Categories
-
-```TypeScript
-// seedCategories() method
-async seedCategories(): Promise<void> {
-    try {
-        const categories: Category[] = [];
-        const categoryNames = [
-            'Fiction',
-            'Non-Fiction',
-            'Science Fiction',
-            'Fantasy',
-            'Mystery',
-            'Romance',
-            'Thriller',
-            'Horror',
-            'Biography',
-            'History',
-            'Self-Help',
-            'Business',
-            'Children',
-            'Young Adult',
-            'Poetry',
-        ];
-
-        for (const name of categoryNames) {
-            const category = new Category();
-            category.name = name;
-            category.description = faker.lorem.sentence();
-            categories.push(category);
-        }
-
-        await this.categoryRepository.save(categories);
-        this.logger.log(`${categories.length} categories seeded successfully`);
-    } catch (error) {
-        this.logger.error(
-            `Error seeding categories: ${error.message}`,
-            error.stack,
-        );
-        throw error;
-    }
-}
-```
-
-**Explanation**:
-
-- Unlike other entities, we use a predefined list of category names rather than random generation
-- This is a common practice for reference/lookup data that should be consistent
-- Each category gets a randomly generated description
-- This approach ensures predictable category values while still having some randomized content
-
 ### Seeding Dependent Entities
 
-#### 4. Seeding Profiles (depends on Users)
+#### 2. Seeding Events
 
 ```TypeScript
-// seedProfiles() method
-async seedProfiles(): Promise<void> {
+  // seed events
+async seedEvents(): Promise<void> {
+    this.logger.log('Seeding events...');
     try {
-        const users = await this.userRepository.find();
-        if (users.length === 0) {
-            throw new Error('No users found. Seed users first.');
-        }
+      const users = await this.userRepository.find();
+      if (users.length === 0) {
+        throw new Error('No users found');
+      }
 
-        const profiles: Profile[] = [];
+      const events: Event[] = [];
+      const eventCount = 10;
 
-        for (const user of users) {
-            const profile = new Profile();
-            profile.bio = faker.lorem.paragraph();
-            profile.dateOfBirth = faker.date.past({ years: 50 });
-            profile.location = `${faker.location.city()}, ${faker.location.country()}`;
-            profile.user = user;  // Set up the one-to-one relationship
-            profiles.push(profile);
-        }
+      for (let i = 0; i < eventCount; i++) {
+        const ev = new Event();
+        ev.created_by = faker.helpers.arrayElement(users);
+        ev.event_name = faker.lorem.sentence(3); // Shorter to fit length limit
+        ev.event_description = faker.lorem.paragraph(2); // Shorter paragraph
+        ev.event_date = faker.date.future(); // Use Date object instead of string
+        ev.event_location = faker.location.city().substring(0, 100); // Ensure it fits length
+        events.push(ev);
+      }
 
-        await this.profileRepository.save(profiles);
-        this.logger.log(`${profiles.length} profiles seeded successfully`);
+      await this.eventRepository.save(events);
+      this.logger.log(`${eventCount} events seeded successfully`);
     } catch (error) {
-        this.logger.error(`Error seeding profiles: ${error.message}`, error.stack);
-        throw error;
+      this.logger.error(`Error seeding events: ${error.message}`, error.stack);
+      throw error;
     }
-}
+  }
 ```
 
-**Explanation**:
-
-- This method demonstrates seeding a **one-to-one relationship** between User and Profile
-- It first checks if users exist, which is critical for maintaining referential integrity
-- For each user, we create a matching profile with:
-  - Biography using `faker.lorem.paragraph()`
-  - Birth date using `faker.date.past()`
-  - Location by combining city and country from Faker
-- We directly assign the user entity to the profile to establish the relationship
-- This showcases the TypeORM approach to handling entity relationships during seeding
-
-#### 5. Seeding Books (depends on Authors and Categories)
+#### 3. Seeding Feedback
 
 ```TypeScript
-// seedBooks() method
-async seedBooks(): Promise<void> {
+  async seedFeedbacks(): Promise<void> {
+    this.logger.log('Seeding feedbacks...');
     try {
-        // Get all authors to relate books to authors
-        const authors = await this.authorRepository.find();
-        if (authors.length === 0) {
-            throw new Error('No authors found. Seed authors first.');
-        }
+      const users = await this.userRepository.find();
+      const events = await this.eventRepository.find();
 
-        // Get categories to assign to books
-        const categories = await this.categoryRepository.find();
-        if (categories.length === 0) {
-            throw new Error('No categories found. Seed categories first.');
-        }
+      if (users.length === 0 || events.length === 0) {
+        throw new Error('No users or events found');
+      }
 
-        const books: Book[] = [];
-        const bookCount = 30;
+      const feedbacks: Feedback[] = [];
+      const feedbackCount = 10;
 
-        for (let i = 0; i < bookCount; i++) {
-            const book = new Book();
-            book.title = faker.lorem.words({ min: 2, max: 5 });
-            book.description = faker.lorem.paragraph();
-            book.publicationYear = faker.number.int({ min: 1900, max: 2023 });
-            // Assign a random author (ManyToOne relationship)
-            book.author = authors[Math.floor(Math.random() * authors.length)];
+      for (let i = 0; i < feedbackCount; i++) {
+        const feedback = new Feedback();
+        feedback.user = faker.helpers.arrayElement(users);
+        feedback.event = faker.helpers.arrayElement(events);
+        feedback.comments = faker.lorem.sentence();
+        feedback.rating = faker.number.int({ min: 1, max: 5 });
+        feedbacks.push(feedback);
+      }
 
-            // Assign 1-3 random categories (ManyToMany relationship)
-            const numCategories = faker.number.int({ min: 1, max: 3 });
-            const bookCategories: Category[] = [];
-            for (let j = 0; j < numCategories; j++) {
-                const randomCategory = categories[Math.floor(Math.random() * categories.length)];
-                if (!bookCategories.includes(randomCategory)) {
-                    bookCategories.push(randomCategory);
-                }
-            }
-            book.categories = bookCategories;
-
-            books.push(book);
-        }
-
-        await this.bookRepository.save(books);
-        this.logger.log(`${bookCount} books seeded successfully`);
+      await this.feedbackRepository.save(feedbacks);
+      this.logger.log(`${feedbackCount} feedbacks seeded successfully`);
     } catch (error) {
-        this.logger.error(`Error seeding books: ${error.message}`, error.stack);
-        throw error;
+      this.logger.error(`Error seeding feedbacks: ${error.message}`, error.stack);
+      throw error;
     }
-}
+  }
 ```
 
-**Explanation**:
-
-- This method demonstrates seeding two different types of relationships:
-  - A **ManyToOne relationship** between Book and Author (each book has one author)
-  - A **ManyToMany relationship** between Book and Category (each book can have multiple categories)
-- We first verify that both authors and categories exist
-- For each book, we:
-  - Generate random title, description, and publication year
-  - Assign a random author from the available authors
-  - Assign 1-3 random categories, ensuring no duplicates
-- This is a great example of how TypeORM can handle complex entity relationships during seeding
-
-#### 6. Seeding Book Reviews (depends on Books and Users)
+#### 4. Seeding Registrations (depends on Users and Events)
 
 ```TypeScript
-// seedBookReviews() method
-async seedBookReviews(): Promise<void> {
+  async seedRegistrations(): Promise<void> {
+    this.logger.log('Seeding registrations...');
     try {
-        const books = await this.bookRepository.find();
-        if (books.length === 0) {
-            throw new Error('No books found. Seed books first.');
-        }
+      const users = await this.userRepository.find();
+      if (users.length === 0) {
+        throw new Error('No users found');
+      }
 
-        const users = await this.userRepository.find();
-        if (users.length === 0) {
-            throw new Error('No users found. Seed users first.');
-        }
+      const events = await this.eventRepository.find();
+      if (events.length === 0) {
+        throw new Error('No events found');
+      }
 
-        const bookReviews: BookReview[] = [];
-        const reviewCount = 50;
+      const registrations: Registration[] = [];
+      const registrationCount = 15;
 
-        for (let i = 0; i < reviewCount; i++) {
-            const review = new BookReview();
-            review.content = faker.lorem.paragraph();
-            review.rating = faker.number.int({ min: 1, max: 5 });
-            review.book = books[Math.floor(Math.random() * books.length)];
-            review.user = users[Math.floor(Math.random() * users.length)];
-            bookReviews.push(review);
-        }
+      for (let i = 0; i < registrationCount; i++) {
+        const registration = new Registration();
+        registration.user = faker.helpers.arrayElement(users);
+        registration.event = faker.helpers.arrayElement(events);
+        registration.payment_amount = faker.number.float({ min: 10, max: 500});
+        registration.payment_status = RegistrationStatus.Pending;
+        registrations.push(registration);
+      }
 
-        await this.bookReviewRepository.save(bookReviews);
-        this.logger.log(`${reviewCount} book reviews seeded successfully`);
+      await this.registrationRepository.save(registrations);
+      this.logger.log(`${registrationCount} registrations seeded successfully`);
     } catch (error) {
-        this.logger.error(
-            `Error seeding book reviews: ${error.message}`,
-            error.stack,
-        );
-        throw error;
+      this.logger.error(`Error seeding registrations: ${error.message}`, error.stack);
+      throw error;
     }
-}
+  }
 ```
 
-**Explanation**:
+#### 5. Seeding Payments (Registrations)
 
-- This method showcases seeding an entity with multiple dependencies (both Book and User)
-- We first ensure that both prerequisite entities exist
-- For each review, we:
-  - Generate random content and a rating between 1-5
-  - Assign a random book from the available books
-  - Assign a random user as the reviewer
-- This demonstrates the pattern for seeding entities that have multiple foreign key relationships
+```TypeScript
+async seedPayments(): Promise<void> {
+    this.logger.log('Seeding payments...');
+    try {
+      // Find registrations that don't have payments yet
+      const registrationsWithoutPayments = await this.registrationRepository
+        .createQueryBuilder('registration')
+        .leftJoinAndSelect('registration.payment', 'payment')
+        .where('payment.payment_id IS NULL')
+        .getMany();
+
+      if (registrationsWithoutPayments.length === 0) {
+        this.logger.log('All registrations already have payments');
+        return;
+      }
+
+      const payments: Payment[] = [];
+      const paymentCount = Math.min(registrationsWithoutPayments.length, 10);
+
+      // Use a subset of registrations without payments
+      const selectedRegistrations = faker.helpers.arrayElements(
+        registrationsWithoutPayments, 
+        paymentCount
+      );
+
+      for (const registration of selectedRegistrations) {
+        const payment = new Payment();
+        payment.registration = registration;
+        payment.amount = faker.number.float({ min: 10, max: 500 });
+        payment.payment_date = faker.date.recent();
+        payment.payment_status = paymentStatus.Pending;
+        payment.payment_method = 'Mpesa';
+        payments.push(payment);
+      }
+
+      if (payments.length > 0) {
+        await this.paymentRepository.save(payments);
+      }
+      this.logger.log(`${payments.length} payments seeded successfully`);
+    } catch (error) {
+      this.logger.error(`Error seeding payments: ${error.message}`, error.stack);
+      throw error;
+    }
+  }
+```
+
 
 ### Database Cleanup
 
@@ -423,34 +334,22 @@ For a complete seeder implementation, you'll want a method to clear existing dat
 // clearDatabase() method
 async clearDatabase(): Promise<void> {
     try {
-        await this.bookReviewRepository.delete({});
-        await this.bookRepository.delete({});
-        await this.categoryRepository.delete({});
-        await this.authorRepository.delete({});
-        await this.profileRepository.delete({});
-        await this.userRepository.delete({});
-        this.logger.log('Database cleared successfully');
+      await this.paymentRepository.delete({});
+      await this.registrationRepository.delete({});
+      await this.feedbackRepository.delete({});
+      await this.eventRepository.delete({});
+      await this.userRepository.delete({});
+      this.logger.log('Database cleared successfully');
     } catch (error) {
-        this.logger.error(
-            `Error clearing database: ${error.message}`,
-            error.stack,
-        );
-        throw error;
+      this.logger.error(
+        `Error clearing database: ${error.message}`,
+        error.stack,
+      );
+      throw error;
     }
+  }
 }
 ```
-
-**Explanation**:
-
-- This method deletes all records from each entity table
-- The order of deletion is crucial - we must delete child records before parent records to maintain referential integrity:
-  1. First, delete BookReviews (depends on Books and Users)
-  2. Then delete Books (depends on Authors and Categories)
-  3. Then delete Categories (independent)
-  4. Then delete Authors (independent)
-  5. Then delete Profiles (depends on Users)
-  6. Finally, delete Users (independent)
-- This prevents foreign key constraint errors during the deletion process
 
 ### Creating a Seeder Controller
 
@@ -467,7 +366,7 @@ export class SeedController {
 
   @Get('all')
   async seedAll() {
-    await this.seedService.seedAll();
+    await this.seedService.seedDatabase();
     return { message: 'All data seeded successfully' };
   }
 
@@ -475,36 +374,6 @@ export class SeedController {
   async seedUsers() {
     await this.seedService.seedUsers();
     return { message: 'Users seeded successfully' };
-  }
-
-  @Get('authors')
-  async seedAuthors() {
-    await this.seedService.seedAuthors();
-    return { message: 'Authors seeded successfully' };
-  }
-
-  @Get('books')
-  async seedBooks() {
-    await this.seedService.seedBooks();
-    return { message: 'Books seeded successfully' };
-  }
-
-  @Get('profiles')
-  async seedProfiles() {
-    await this.seedService.seedProfiles();
-    return { message: 'Profiles seeded successfully' };
-  }
-
-  @Get('categories')
-  async seedCategories() {
-    await this.seedService.seedCategories();
-    return { message: 'Categories seeded successfully' };
-  }
-
-  @Get('book-reviews')
-  async seedBookReviews() {
-    await this.seedService.seedBookReviews();
-    return { message: 'Book reviews seeded successfully' };
   }
 
   @Post('clear')
@@ -529,14 +398,15 @@ export class SeedController {
 1. **Order Matters**: Always seed parent entities before child entities
 
    ```TypeScript
-   async seedAll(): Promise<void> {
-       await this.seedUsers();           // Independent entity
-       await this.seedAuthors();         // Independent entity
-       await this.seedCategories();      // Independent entity
-       await this.seedProfiles();        // Depends on users
-       await this.seedBooks();           // Depends on authors and categories
-       await this.seedBookReviews();     // Depends on books and users
-   }
+  async seedDatabase(): Promise<void> {
+    this.logger.log('Seeding database...');
+    await this.seedUsers(); // independent
+    await this.seedEvents(); // dependent on users
+    await this.seedFeedbacks(); // dependent on users and events
+    await this.seedRegistrations(); // dependent on events and users
+    await this.seedPayments(); // dependent on registrations
+    this.logger.log('Database seeding completed.');
+  }
    ```
 2. **Validation First**: Always check for prerequisites before seeding dependent entities
 
@@ -578,28 +448,12 @@ export class SeedController {
    ```
 6. **Relationship Handling**: Pay special attention to how TypeORM handles relationships
 
-   ```TypeScript
-   // One-to-one relationship example
-   profile.user = user;
-
-   // Many-to-one relationship example
-   book.author = randomAuthor;
-
-   // Many-to-many relationship example
-   book.categories = selectedCategories;
-   ```
-
 ### Using the Seed API
 
 With our seed controller, we can use these endpoints:
 
 - `GET /seed/all` - Seeds all entities
 - `GET /seed/users` - Seeds only users
-- `GET /seed/authors` - Seeds only authors
-- `GET /seed/books` - Seeds only books
-- `GET /seed/profiles` - Seeds only profiles
-- `GET /seed/categories` - Seeds only categories
-- `GET /seed/book-reviews` - Seeds only book reviews
 - `POST /seed/clear` - Clears all data from the database
 
 ### Conclusion
@@ -621,3 +475,16 @@ Changed string dates to Date objects - Proper data type mapping
 Used decimal for monetary values - Better precision for amounts
 Used ntext for long descriptions - Handles larger text content
 Shortened generated text - Ensures it fits within column limits
+
+
+### creating a new login
+```sql
+USE [seeding]
+GO
+
+CREATE USER [Tiff] FOR LOGIN [Tiff]
+GO
+
+ALTER ROLE db_owner ADD MEMBER [Tiff]
+GO
+```
