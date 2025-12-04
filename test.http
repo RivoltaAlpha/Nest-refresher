@@ -1,7 +1,7 @@
 # Event Management System - API Testing
 # Base URL: http://localhost:3000
 
-@baseUrl = http://localhost:8000
+@baseUrl = https://nest-refresher.onrender.com
 @contentType = Content-Type: application/json
 
 # Variables for testing (update these with actual values)
@@ -369,8 +369,15 @@ Authorization: Bearer {{accessToken}}
 GET {{baseUrl}}/events/999999
 Authorization: Bearer {{accessToken}}
 
-### Test Invalid ID Format
+### Run Migrations
+POST {{baseUrl}}/migrate
+
+### Check Migration Status
+GET {{baseUrl}}/migration-status
+
+### Run Database Seed (after migrations)
 GET {{baseUrl}}/seed/all
+
 
 
 ###############################################################################
