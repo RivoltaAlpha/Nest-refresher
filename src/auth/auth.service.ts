@@ -10,6 +10,7 @@ import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { LoginDto } from './dto/signin.dto';
 
 @Injectable()
 export class AuthService {
@@ -118,14 +119,14 @@ export class AuthService {
     return { user: updatedUser, accessToken, refreshToken };
   }
 
-  async SignIn(createAuthDto: CreateAuthDto) {
+  async SignIn(loginDto: LoginDto) {
     const foundUser = await this.userRepository.findOne({
-      where: { email: createAuthDto.email },
+      where: { email: loginDto.email },
       select: ['user_id', 'email', 'password','role'],
     });
     if (!foundUser) {
       throw new NotFoundException(
-        `User with email ${createAuthDto.email} not found`,
+        `User with email ${loginDto.email} not found`,
       );
     }
 
@@ -133,7 +134,7 @@ export class AuthService {
     // console.log('Password:', createAuthDto.password);
     // console.log('Found password:', foundUser.password);
     const foundPassword = await bcrypt.compare(
-      createAuthDto.password,
+      loginDto.password,
       foundUser.password, // Assuming password is stored in the user entity
     );
     if (!foundPassword) {
